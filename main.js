@@ -57,7 +57,7 @@ function showTasks(){
   }
   let newLiTag = "";
   listArray.forEach((element, index) => {
-    newLiTag += `<li>${element}<span class="icon" onclick="deleteTask(${index})"><i class="fas fa-trash"></i></span></li>`;
+    newLiTag += `<li>${element}<span class="icon" onclick="deleteTask(${index})"><button>Delete</button></span></li>`;
   });
   todoList.innerHTML = newLiTag; 
   inputBox.value = ""; 
@@ -76,3 +76,69 @@ deleteAllBtn.onclick = ()=>{
   localStorage.setItem("New todo", JSON.stringify(listArray)); 
   showTasks(); 
 }
+// Thêm tính năng kéo thả
+function enableDragAndDrop() {
+    const tasks = document.querySelectorAll(".todoList li");
+  
+    tasks.forEach((task, index) => {
+      task.setAttribute("draggable", true);
+      task.dataset.index = index; // Gắn chỉ số để theo dõi vị trí
+  
+      task.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", e.target.dataset.index); // Lưu chỉ số của mục đang kéo
+        task.classList.add("dragging");
+      });
+  
+      task.addEventListener("dragend", () => {
+        task.classList.remove("dragging");
+      });
+    });
+  
+    todoList.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      const draggingTask = document.querySelector(".dragging");
+      const afterElement = getDragAfterElement(todoList, e.clientY); // Tìm mục cần đặt phía sau
+      if (afterElement == null) {
+        todoList.appendChild(draggingTask);
+      } else {
+        todoList.insertBefore(draggingTask, afterElement);
+      }
+    });
+  
+    todoList.addEventListener("drop", () => {
+      const newOrder = [];
+      document.querySelectorAll(".todoList li").forEach((task) => {
+        newOrder.push(task.textContent.replace("Delete", "").trim());
+      });
+  
+      // Lưu thứ tự mới vào localStorage
+      localStorage.setItem("New todo", JSON.stringify(newOrder));
+      showTasks(); // Cập nhật giao diện
+    });
+  }
+  
+  // Hàm hỗ trợ tìm phần tử phía sau khi kéo thả
+  function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
+  
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - (box.top + box.height / 2);
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY }
+    ).element;
+  }
+  
+  // Ghi đè hàm showTasks để kích hoạt drag-and-drop
+  const originalShowTasks = showTasks;
+  showTasks = function () {
+    originalShowTasks(); // Gọi lại hàm gốc
+    enableDragAndDrop(); // Kích hoạt tính năng kéo thả
+  };
+  

@@ -119,6 +119,18 @@ body{
     padding: 6px 15px;
 }
 .footer button.active {
-    opacity: 1;
-    pointer-events: auto;
+  opacity: 1;
+  pointer-events: auto;
 }
+.todoList li.dragging {
+    opacity: 0.5; /* Làm mờ công việc đang kéo */
+    background-color: #f0f0f0; /* Đổi màu nền */
+    cursor: grabbing;
+}
+
+.todoList li:not(.dragging) {
+    transition: transform 0.2s ease-in-out; /* Hiệu ứng mượt mà khi sắp xếp */
+}
+
+
+
