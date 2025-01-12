@@ -131,6 +131,16 @@ body{
 .todoList li:not(.dragging) {
     transition: transform 0.2s ease-in-out; /* Hiệu ứng mượt mà khi sắp xếp */
 }
+/* Khi phần tử được kéo */
+.todoList li[draggable="true"] {
+    cursor: grab;
+}
+
+.todoList li:active {
+    cursor: grabbing;
+    opacity: 0.5;
+    background-color: #d9d9d9;
+}
 
 
 
